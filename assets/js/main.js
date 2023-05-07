@@ -63,9 +63,18 @@
           .closest("div")
           .find('button[type="submit"]')
           .attr("disabled", "disabled");
-        var data = $(this).serialize();
+
+        const data = JSON.stringify({
+          name: $("#contact-form input[name='contact-name']").val(),
+          phone: $("#contact-form input[name='contact-phone']").val(),
+          email: $("#contact-form input[name='contact-email']").val(),
+          message: $("#contact-form textarea[name='contact-message']").val(),
+        });
+
+        console.log(data);
+
         $.ajax({
-          url: "mail.php",
+          url: "api/contact_us.php",
           type: "post",
           dataType: "json",
           data: data,
@@ -74,18 +83,19 @@
               .closest("div")
               .find('button[type="submit"]')
               .removeAttr("disabled");
-            if (data.code == false) {
-              _self.closest("div").find('[name="' + data.field + '"]');
+            if (data?.err) {
+              _self.closest("div").find('[name="' + data?.field + '"]');
               _self
                 .find(".rn-btn")
                 .after('<div class="error-msg"><p>*' + data.err + "</p></div>");
-            } else {
+            } else if (data?.success) {
               $(".error-msg").hide();
               $(".form-group").removeClass("focused");
               _self
                 .find(".rn-btn")
                 .after(
-                  '<div class="success-msg"><p>' + data.success + "</p></div>"
+                  '<div class="success-msg"><p>' + data.success ||
+                    "Sent" + "</p></div>"
                 );
               _self.closest("div").find("input,textarea").val("");
 
